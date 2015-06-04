@@ -1,0 +1,17 @@
+{
+    "contents" : "\nrun = function(percentTrain= 0.5, roundOff =T ,outputClosenessThreshold = 0.3 , HLNodes = 4 ) {\n  #import the data set\n  dataSet = read.csv(\"creditset.csv\");\n  \n  #make sure the header is used as labels\n  head(dataSet);\n  \n  #Find how many observations will be used to train\n  numTrain = percentTrain*nrow(dataSet);\n  \n  #extract the Training Set and the testing set\n  trainSet = dataSet[1:numTrain,];\n  testSet = dataSet[(numTrain+1):nrow(dataSet),];\n  \n  #error checking\n  if(nrow(trainSet)+nrow(testSet) != nrow(dataSet)  ){\n    print(\"There was an error in divinding data\");\n    stop();\n  }\n  \n  #building the magnificent neural network creature\n  NNet =  neuralnet(default10yr~ LTI + age, trainSet, \n                    hidden = HLNodes ,linear.output=F,\n                    lifesign=\"minimal\",threshold = 0.1);\n  \n  #Plot the network(the best part)\n  plot(NNet);\n  \n  #From the testing set we consider the features \n  #our model was based on\n  testSet_Features = subset(testSet,select=c(\"LTI\",\"age\"));\n  \n  #Using the testData compute output based on Neural network prediction\n  NNresults = compute(NNet , testSet_Features );\n  if(roundOff){\n    NNresults$net.result = round(NNresults$net.result);\n  }\n  \n  #Compile the output in a presentable form\n  finalOutput = data.frame(Actual = testSet$default10yr,\n                          Prediction = NNresults$net.result,\n                          Matches = doesPredictionMatch(testSet$default10yr,NNresults$net.result,outputClosenessThreshold));\n  row.names(finalOutput) = NULL;\n  \n  #Print the output along with the success percentage of the ANN\n  #print(finalOutput);\n  print(cat(\"Prediction Success Rate : \",countSuccessPercent(finalOutput$Matches)));\n  \n  return(finalOutput);\n}\n\ndoesPredictionMatch = function( expected =NULL , predicted = NULL , threshold = 0.3){\n  if(is.null(expected) || is.null(predicted)){\n    print(\"Necessary arguments missing or null\");\n    stop();\n  }\n  \n  results = rep(FALSE,length(expected));\n  \n  for(i in 1:length(expected)){\n    if((!is.na(expected[i]))&&(!is.na(predicted[i]))){  \n      if(abs(expected[i]-predicted[i])<threshold ){\n        results[i] = TRUE;\n      }\n    }\n      \n  }\n  return (results);\n}\n\ncountSuccessPercent = function(input = NULL){\n  count= 0;\n  for(i in 1:length(input)){\n    tmp =as.logical(input[i]); \n    if(is.logical(tmp) && tmp ==TRUE ){\n      count=count+1;\n    }\n  }\n  return ((count/length(input))*100);  \n}",
+    "created" : 1400091023018.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3740037309",
+    "id" : "C9FC8858",
+    "lastKnownWriteTime" : 1400098550,
+    "path" : "C:/Users/OmarFarooq/Desktop/Summer2014/ML_R/Test_NN4_CreditSet/run.R",
+    "project_path" : "run.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "source_on_save" : true,
+    "type" : "r_source"
+}
